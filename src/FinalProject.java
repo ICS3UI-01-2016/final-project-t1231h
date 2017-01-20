@@ -31,12 +31,10 @@ public class FinalProject extends JComponent implements KeyListener {
     boolean jump = false;
     boolean lastJump = false;
     //key actions
-    boolean right=false;
-    boolean left=false;
-    boolean up=false;
-    
-    boolean hitting=true;
-    
+    boolean right = false;
+    boolean left = false;
+    boolean up = false;
+    boolean hitting = false;
     int gravity = 1;
     int dy = 0;
     int jumpVelocity = -15;
@@ -57,6 +55,7 @@ public class FinalProject extends JComponent implements KeyListener {
     int roadgap = 200;
     //speed of the game
     int speed = 2;
+    int roadlength = road.length;
     //draw random obstacle
     int oWidth = 60;
     int oHeight = 40;
@@ -111,17 +110,17 @@ public class FinalProject extends JComponent implements KeyListener {
     public void setRoad(int roadPosition) {
         //set up the pipes
         int roadY = 600;
-       // for (int i = 0; i < road.length; i++) {
-            int roadX = 0;
-            //generating a random y position
-            roadgap = (int) (Math.random() * (300 - 50 + 1) + 50);
-            road[roadPosition] = new Rectangle(roadX, roadY, rWidth, rHeight);
-            //move the roadY value over
-            roadY = roadY - rHeight - roadgap;
+        // for (int i = 0; i < road.length; i++) {
+        int roadX = 0;
+        //generating a random y position
+        roadgap = (int) (Math.random() * (300 - 50 + 1) + 50);
+        road[roadPosition] = new Rectangle(roadX, roadY, rWidth, rHeight);
+        //move the roadY value over
+        roadY = roadY - rHeight - roadgap;
 
-            road[roadPosition].setBounds(roadX, roadY- roadgap - rHeight, rWidth, rHeight);
+        road[roadPosition].setBounds(roadX, roadY - roadgap - rHeight, rWidth, rHeight);
 
-            passedroad[roadPosition] = false;
+        passedroad[roadPosition] = false;
 
         //}
     }
@@ -161,7 +160,7 @@ public class FinalProject extends JComponent implements KeyListener {
                     for (int i = 0; i < road.length; i++) {
                         road[i].y = road[i].y + speed;
                         //check if a road is off the screen
-                        if (road[i].y + rHeight >  800) {
+                        if (road[i].y + rHeight > 800) {
                             System.out.println("set road again");
                             //move the road
                             setRoad(i);
@@ -178,48 +177,47 @@ public class FinalProject extends JComponent implements KeyListener {
                     }
                 }
 
-                if(right){
-                    cha.x=cha.x+4;
+                if (right) {
+                    cha.x = cha.x + 4;
                 }
-                if(left){
-                    cha.x=cha.x-4;             
+                if (left) {
+                    cha.x = cha.x - 4;
                 }
-                if(up){
-                    cha.y=cha.y-4;
+                if (up) {
+                    cha.y = cha.y - 4;
                 }
-                    
-                //get the cha to jump
-                //apply gravity
-                dy = dy + gravity;
-                //make the cha fly
-                if (jump && !lastJump && !dead) {
-                    dy = jumpVelocity;
-                }
-                lastJump = jump;
-                //apply the change in y to the cha
-                cha.y = cha.y + dy;
-                for (int i = 0; i < road.length; i++) {
-                    if (!cha.intersects(road[i])) {
-                        System.out.println("lll");
-                        gravity = 0;
-                        speed=0;
-                        hitting=false;
-                        jump=false;
+
+
+                if (jump != false) {
+                    for (int i = 0; i < roadlength; i++) {
+                        if (jump = true) {
+                            System.out.println("jumptrue");
+                            speed=1;
+                            //apply gravity
+                            dy = dy + gravity;
+                            //make the cha fly
+                            if (jump && !lastJump && !dead) {
+                                dy = jumpVelocity;
+                            }
+                            lastJump = jump;
+                            //apply the change in y to the cha
+                            cha.y = cha.y + dy;
+                        }
+                        if (cha.intersects(road[i])) {
+                            System.out.println("intersects true");
+                            hitting = true;
+                        }
+                        if (hitting == true) {
+                            System.out.println("hitting true");
+                            dead = true;
+                            reset();
+                        }
+                        if (hitting == false) {
+                            System.out.println("hitting false");
+                            gravity = 0;
+                            speed = 1;
+                        }
                     }
-                    if (cha.intersects(road[i])) {
-                        System.out.println("kkk");
-                        gravity = 1;
-                    }
-                   //check if bird hits top or bottom of screen
-                //if(cha.y<0){
-                    //cha.y=0;
-                   // dead=true;  
-               // }
-              //  if (cha.y > 800 || cha.y + cha.height < HEIGHT) {
-                 //   dead = true;
-                   // cha.y = HEIGHT - cha.height;
-                    //reset();
-                //}
                 }
             }
             // GAME LOGIC ENDS HERE 
@@ -280,17 +278,19 @@ public class FinalProject extends JComponent implements KeyListener {
         int key = e.getKeyCode();
         if (key == KeyEvent.VK_SPACE) {
             jump = true;
-            start = true;
             System.out.println("hit key");
         }
-        if(key==KeyEvent.VK_UP){
-            up=true;
+        if(key==KeyEvent.VK_ENTER){
+            start=true;
         }
-        if(key==KeyEvent.VK_RIGHT){
-            right=true;  
+        if (key == KeyEvent.VK_UP) {
+            up = true;
         }
-        if(key==KeyEvent.VK_LEFT){
-            left=true;
+        if (key == KeyEvent.VK_RIGHT) {
+            right = true;
+        }
+        if (key == KeyEvent.VK_LEFT) {
+            left = true;
         }
     }
 
@@ -300,14 +300,14 @@ public class FinalProject extends JComponent implements KeyListener {
         if (key == KeyEvent.VK_SPACE) {
             jump = false;
         }
-        if(key==KeyEvent.VK_UP){
-            up=false;
+        if (key == KeyEvent.VK_UP) {
+            up = false;
         }
-        if(key==KeyEvent.VK_RIGHT){
-            right=false;
+        if (key == KeyEvent.VK_RIGHT) {
+            right = false;
         }
-        if(key==KeyEvent.VK_LEFT){
-            left=false;
+        if (key == KeyEvent.VK_LEFT) {
+            left = false;
         }
     }
 }
