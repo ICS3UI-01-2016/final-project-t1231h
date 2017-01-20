@@ -189,36 +189,41 @@ public class FinalProject extends JComponent implements KeyListener {
 
 
                 if (jump != false) {
-                    for (int i = 0; i < roadlength; i++) {
-                        if (jump = true) {
-                            System.out.println("jumptrue");
-                            speed=1;
-                            //apply gravity
-                            dy = dy + gravity;
-                            //make the cha fly
-                            if (jump && !lastJump && !dead) {
-                                dy = jumpVelocity;
-                            }
-                            lastJump = jump;
-                            //apply the change in y to the cha
-                            cha.y = cha.y + dy;
+                    if(jump==true){
+                        System.out.println("jumptrue");
+                        //apply gravity
+                        dy = dy + gravity;
+                        //make the cha fly
+                        if (jump && !lastJump && !dead) {
+
+                            dy = jumpVelocity;   
                         }
-                        if (cha.intersects(road[i])) {
-                            System.out.println("intersects true");
-                            hitting = true;
-                        }
-                        if (hitting == true) {
-                            System.out.println("hitting true");
-                            dead = true;
-                            reset();
-                        }
-                        if (hitting == false) {
-                            System.out.println("hitting false");
-                            gravity = 0;
-                            speed = 1;
-                        }
+                        lastJump = jump;
+                        //apply the change in y to the cha
+                        cha.y = cha.y + dy;
+                    }
+                }else{
+                for (int i = 0; i < roadlength; i++) {
+                    if (cha.intersects(road[i])) {
+                        System.out.println("intersects true");
+                        hitting = true;  
+                    if (hitting == true) {
+                        System.out.println("hitting true");
+                        dead = true;
+                        reset();
+                    }
+                    }
+                    if(!cha.intersects(road[i])){
+                        hitting=false;
+                    if (hitting == false) {
+                        System.out.println("hitting false");
+                        gravity = 0;
+                        speed = 1;
+                    }
                     }
                 }
+
+            }
             }
             // GAME LOGIC ENDS HERE 
 
@@ -280,8 +285,8 @@ public class FinalProject extends JComponent implements KeyListener {
             jump = true;
             System.out.println("hit key");
         }
-        if(key==KeyEvent.VK_ENTER){
-            start=true;
+        if (key == KeyEvent.VK_ENTER) {
+            start = true;
         }
         if (key == KeyEvent.VK_UP) {
             up = true;
