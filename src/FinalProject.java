@@ -17,7 +17,7 @@ import javax.swing.JFrame;
 public class FinalProject extends JComponent implements KeyListener {
 
     // Height and Width of our game
-    static final int WIDTH = 500;
+    static final int WIDTH = 400;
     static final int HEIGHT = 800;
     // sets the framerate and delay for our game
     // you just need to select an approproate framerate
@@ -30,6 +30,7 @@ public class FinalProject extends JComponent implements KeyListener {
     //animation
     boolean jump = false;
     boolean lastJump = false;
+    int jumpkeyP = 0;
     //key actions
     boolean right = false;
     boolean left = false;
@@ -37,9 +38,9 @@ public class FinalProject extends JComponent implements KeyListener {
     boolean hitting = false;
     int gravity = 1;
     int dy = 0;
-    int jumpVelocity = -15;
+    int jumpVelocity = -35;
     //character
-    Rectangle cha = new Rectangle(225, 740, 50, 50);
+    Rectangle cha = new Rectangle(185, 740, 50, 50);
     //counting scores
     int score = 0;
     Font scoreFont = new Font("Arial", Font.BOLD, 42);
@@ -54,7 +55,7 @@ public class FinalProject extends JComponent implements KeyListener {
     //minimum distance from road to road
     int roadgap = 200;
     //speed of the game
-    int speed = 2;
+    int speed = 4;
     int roadlength = road.length;
     //draw random obstacle
     int oWidth = 60;
@@ -188,43 +189,59 @@ public class FinalProject extends JComponent implements KeyListener {
                 }
 
 
-                if (jump != false) {
-                    if(jump==true){
-                        System.out.println("jumptrue");
-                        //apply gravity
-                        dy = dy + gravity;
-                        //make the cha fly
-                        if (jump && !lastJump && !dead) {
-
-                            dy = jumpVelocity;   
-                        }
-                        lastJump = jump;
-                        //apply the change in y to the cha
-                        cha.y = cha.y + dy;
-                    }
-                }else{
                 for (int i = 0; i < roadlength; i++) {
                     if (cha.intersects(road[i])) {
                         System.out.println("intersects true");
-                        hitting = true;  
+                        hitting = true;
+                    }
+                    System.out.println("else");
                     if (hitting == true) {
                         System.out.println("hitting true");
                         dead = true;
+                        System.out.println("dead adn reset");
                         reset();
                     }
+                    if (!cha.intersects(road[i])) {
+                        System.out.println("not intersecting road");
+                        hitting = false;
+                        //if (hitting == false) {
+                           // System.out.println("hitting false");
+                            //gravity = 0;
+                            //speed = 3;
+                        //}
                     }
-                    if(!cha.intersects(road[i])){
-                        hitting=false;
-                    if (hitting == false) {
-                        System.out.println("hitting false");
-                        gravity = 0;
-                        speed = 1;
-                    }
+                    for (int o = 0; o < jumpkeyP; o++) {
+                        if (jumpkeyP > 0) {
+                            if (jump == true) {
+                                System.out.println("jumptrue");
+                                //apply gravity
+                                dy = dy + gravity;
+                                System.out.println("gravity apply");
+                                //make the cha jump
+                                if (jump && !lastJump && !dead) {
+                                    System.out.println("dy=jumpvelocity");
+                                    dy = jumpVelocity;
+                                }
+                                System.out.println("last jump=jump");
+                                lastJump = jump;
+                                //apply the change in y to the cha
+                                System.out.println("cha moving in y axis");
+                                cha.y = cha.y + dy;
+                            }
+                        } else {
+                            System.out.println("gravity False");
+                            if (jumpkeyP < 0) {
+                                System.out.println("gravity & jump false");
+                                jump = false;
+                                gravity = 0;
+                                speed = 3;
+                            }
+                        }
                     }
                 }
+            }
 
-            }
-            }
+
             // GAME LOGIC ENDS HERE 
 
             // update the drawing (calls paintComponent)
@@ -283,6 +300,7 @@ public class FinalProject extends JComponent implements KeyListener {
         int key = e.getKeyCode();
         if (key == KeyEvent.VK_SPACE) {
             jump = true;
+            jumpkeyP = 1;
             System.out.println("hit key");
         }
         if (key == KeyEvent.VK_ENTER) {
