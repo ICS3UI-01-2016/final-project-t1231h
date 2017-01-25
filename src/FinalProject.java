@@ -17,50 +17,55 @@ import javax.swing.JFrame;
 public class FinalProject extends JComponent implements KeyListener {
 
     // Height and Width of our game
-    static final int WIDTH = 400;
-    static final int HEIGHT = 800;
+    static final int WIDTH = 1000;
+    static final int HEIGHT = 600;
     // sets the framerate and delay for our game
     // you just need to select an approproate framerate
     long desiredFPS = 60;
     long desiredTime = (1000) / desiredFPS;
+
+    //set the color for the ground
     Color groundcolor = new Color(131, 183, 113);
+
     //wait to start
     boolean start = false;
+    //boolean to say dead
     boolean dead = false;
-    //animation
-    boolean jump = false;
-    boolean lastJump = false;
-    int jumpkeyP = 0;
+
     //key actions
     boolean right = false;
     boolean left = false;
     boolean up = false;
+    boolean down = false;
+
+    //boolean to check if the chs hits the road
     boolean hitting = false;
-    int gravity = 1;
-    int dy = 0;
-    int jumpVelocity = -35;
+
+    //win
+    Font safeFont = new Font("Arial", Font.BOLD, 42);
+    
     //character
-    Rectangle cha = new Rectangle(185, 740, 50, 50);
-    //counting scores
-    int score = 0;
-    Font scoreFont = new Font("Arial", Font.BOLD, 42);
+    Rectangle cha = new Rectangle(485, 500, 50, 50);
+
     //rect array
-    Rectangle[] road = new Rectangle[5];
-    boolean[] passedroad = new boolean[5];
-    //whole size of pictures
-    //the width of a single road
-    int rWidth = WIDTH;
-    //the height of a road
-    int rHeight = 50;
-    //minimum distance from road to road
-    int roadgap = 200;
+    Rectangle[] blockT = new Rectangle[5];
+    Rectangle[] blockB = new Rectangle[5];
+
+    //the width of a single block
+    int blockWidth = 120;
+    //the height of a single block
+    int blockHeight = 120;
+    //minimum distance from block to block
+    int mindisT = 100;
+    int mindisB = 100;
+    
+    //create a home
+    Rectangle home = new Rectangle(25, 25, 100, 50);
+    //create a fake home
+    Rectangle homeF = new Rectangle(850, 25, 100, 50);
+
     //speed of the game
-    int speed = 4;
-    int roadlength = road.length;
-    //draw random obstacle
-    int oWidth = 60;
-    int oHeight = 40;
-    int ogap = 70;
+    int speed = 2;
 
     // drawing of the game happens in here
     // we use the Graphics object, g, to perform the drawing
@@ -76,54 +81,68 @@ public class FinalProject extends JComponent implements KeyListener {
         //draw a ground background
         g.fillRect(0, 0, WIDTH, HEIGHT);
 
-        //draw the road
+        //draw the blocks
         g.setColor(Color.DARK_GRAY);
-        for (int i = 0; i < road.length; i++) {
-            g.fillRect(road[i].x, road[i].y, road[i].width, road[i].height);
+        for (int i = 0; i < blockT.length; i++) {
+            g.fillRect(blockT[i].x + mindisT, 100, blockWidth, blockHeight);
+            g.fillRect(blockB[i].x + mindisB, 300, blockWidth, blockHeight);
         }
-
+        //draw the homes
+        g.setColor(Color.MAGENTA);
+        g.fillRect(home.x, home.y, home.width, home.height);
+        g.fillRect(homeF.x, homeF.y, homeF.width, homeF.height);
         //draw the cha
         g.setColor(Color.ORANGE);
         g.fillRect(cha.x, cha.y, cha.width, cha.height);
-
+        if(cha.intersects(home)) {                   
+        g.setColor(Color.WHITE);
+        g.setFont(safeFont);
+        g.drawString("You are SAFE",WIDTH/2,25);           
+                       }
+        if(cha.intersects(homeF)){
+            g.setColor(Color.WHITE);
+        g.setFont(safeFont);
+        g.drawString("You are DEAD",WIDTH/2,25);
+        }
+        
         // GAME DRAWING ENDS HERE
     }
 
     public void reset() {
-        //set up the pipes
-        int roadY = 600;
-        for (int i = 0; i < road.length; i++) {
-            int roadX = 0;
-            //generating a random y position
-            roadgap = (int) (Math.random() * (300 - 50 + 1) + 50);
-            road[i] = new Rectangle(roadX, roadY, rWidth, rHeight);
-            //move the roadY value over
-            score = 0;
-            roadY = roadY - rHeight - roadgap;
-            passedroad[i] = false;
-        }//reset the bird
-        cha.y = 740;
-
-        start = false;
-        dead = false;
+        int blockXT = 50;
+        int blockXB = 40;
+        for (int i = 0; i < blockT.length; i++) {
+            // generating a random x position of blocks
+            mindisT = (int) (Math.random() * (300 - 65 + 1) + 65);
+            mindisB = (int) (Math.random() * (300 - 70 + 1) + 70);
+            blockT[i] = new Rectangle(blockXT, 80, blockWidth, blockHeight);
+            blockB[i] = new Rectangle(blockXB, 270, blockWidth, blockHeight);
+            // move the pipeX value over
+            blockXT = blockXT + blockWidth + mindisT;
+            blockXB = blockXB + blockWidth + mindisB;
+// reset the whole thing
+            cha.y = 500;
+            home.y = 25;
+            homeF.y = 25;
+            start = false;
+            dead = false;
+        }
     }
 
-    public void setRoad(int roadPosition) {
-        //set up the pipes
-        int roadY = 600;
-        // for (int i = 0; i < road.length; i++) {
-        int roadX = 0;
-        //generating a random y position
-        roadgap = (int) (Math.random() * (300 - 50 + 1) + 50);
-        road[roadPosition] = new Rectangle(roadX, roadY, rWidth, rHeight);
-        //move the roadY value over
-        roadY = roadY - rHeight - roadgap;
+    public void setBlock(int blockPosition) {
 
-        road[roadPosition].setBounds(roadX, roadY - roadgap - rHeight, rWidth, rHeight);
+        //generate random X position
+        mindisT = (int) (Math.random() * (300 - 65 + 1) + 65);
+        mindisB = (int) (Math.random() * (300 - 70 + 1) + 70);
 
-        passedroad[roadPosition] = false;
+        int blockNXT = blockT[blockPosition].x;
+        blockNXT = blockNXT + (blockWidth + mindisT) * blockT.length;
+        int blockNXB = blockB[blockPosition].x;
+        blockNXB = blockNXB + (blockWidth + mindisB) * blockB.length;
 
-        //}
+        blockT[blockPosition].setBounds(blockNXT, 80, blockWidth, blockHeight);
+        blockB[blockPosition].setBounds(blockNXB, 270, blockWidth, blockHeight);
+
     }
     // The main game loop
     // In here is where all the logic for my game will go
@@ -134,15 +153,22 @@ public class FinalProject extends JComponent implements KeyListener {
         long startTime;
         long deltaTime;
 
-        //set up the pipes
-        int roadY = 600;
-        for (int i = 0; i < road.length; i++) {
-            int roadX = 0;
-            //generating a random y position
-            roadgap = (int) (Math.random() * (300 - 50 + 1) + 50);
-            road[i] = new Rectangle(roadX, roadY, rWidth, rHeight);
-            //move the roadY value over
-            roadY = roadY - rHeight - roadgap;
+        int blockXT = 50;
+        int blockXB = 40;
+        for (int i = 0; i < blockT.length; i++) {
+            // generating a random x position of blocks
+            //random minimum distance for Top blocks
+            mindisT = (int) (Math.random() * (300 - 65 + 1) + 65);
+            //for bottom blocks
+            mindisB = (int) (Math.random() * (300 - 70 + 1) + 70);
+            //new rectangles
+            blockT[i] = new Rectangle(blockXT, 80, blockWidth, blockHeight);
+            //new rectangles
+            blockB[i] = new Rectangle(blockXB, 270, blockWidth, blockHeight);
+            // move the pipeX value over
+            blockXT = blockXT + blockWidth + mindisT;
+            blockXB = blockXB + blockWidth + mindisB;
+
         }
 
         // the main game loop section
@@ -153,101 +179,58 @@ public class FinalProject extends JComponent implements KeyListener {
             startTime = System.currentTimeMillis();
 
             // all your game rules and move is done in here
-            // GAME LOGIC STARTS HERE 
+            // GAME LOGIC STARTS HERE         
             if (start) {
-                System.out.println("doing thing");
-                //get the roads moving
                 if (!dead) {
-                    for (int i = 0; i < road.length; i++) {
-                        road[i].y = road[i].y + speed;
-                        //check if a road is off the screen
-                        if (road[i].y + rHeight > 800) {
-                            System.out.println("set road again");
-                            //move the road
-                            setRoad(i);
+                    // get the blocks moving
+                    for (int i = 0; i < 5; i++) {
+                        blockT[i].x = blockT[i].x + speed;
+                        blockB[i].x = blockB[i].x - speed;
+                        // check if a pipe is off the screen
+                        if (blockT[i].x + blockWidth < 1000) {
+                            // move the pipe
+                            setBlock(i);
                         }
+                        if (cha.intersects(blockT[i])) {
+                            dead = true;
+                            reset();
+
+                        }else{
+                        if (cha.intersects(blockB[i])) {
+                            dead = true;
+                            reset();
+                        }
+                        if(cha.intersects(home)){
+                            reset();
+                        }else{
+                            
+                        }
+                        
+                        }
+                      
                     }
                 }
-
-                //see if we passed a road  
-                for (int i = 0; i < road.length; i++) {
-                    if (!passedroad[i] && cha.y > road[i].y + rWidth) {
-                        score++;
-                        passedroad[i] = true;
-
-                    }
-                }
-
+                //right key variable
                 if (right) {
                     cha.x = cha.x + 4;
                 }
+                //left key variable
                 if (left) {
                     cha.x = cha.x - 4;
                 }
+                //up key variable
                 if (up) {
                     cha.y = cha.y - 4;
+                    System.out.println("up");
+                }
+                if (down) {
+                    cha.y = cha.y + 4;
                 }
 
-
-                for (int i = 0; i < roadlength; i++) {
-                    if (cha.intersects(road[i])) {
-                        System.out.println("intersects true");
-                        hitting = true;
-                    }
-                    System.out.println("else");
-                    if (hitting == true) {
-                        System.out.println("hitting true");
-                        dead = true;
-                        System.out.println("dead adn reset");
-                        reset();
-                    }
-                    if (!cha.intersects(road[i])) {
-                        System.out.println("not intersecting road");
-                        hitting = false;
-                        //if (hitting == false) {
-                           // System.out.println("hitting false");
-                            //gravity = 0;
-                            //speed = 3;
-                        //}
-                    }
-                    for (int o = 0; o < jumpkeyP; o++) {
-                        if (jumpkeyP > 0) {
-                            if (jump == true) {
-                                System.out.println("jumptrue");
-                                //apply gravity
-                                dy = dy + gravity;
-                                System.out.println("gravity apply");
-                                //make the cha jump
-                                if (jump && !lastJump && !dead) {
-                                    System.out.println("dy=jumpvelocity");
-                                    dy = jumpVelocity;
-                                }
-                                System.out.println("last jump=jump");
-                                lastJump = jump;
-                                //apply the change in y to the cha
-                                System.out.println("cha moving in y axis");
-                                cha.y = cha.y + dy;
-                            }
-                        } else {
-                            System.out.println("gravity False");
-                            if (jumpkeyP < 0) {
-                                System.out.println("gravity & jump false");
-                                jump = false;
-                                gravity = 0;
-                                speed = 3;
-                            }
-                        }
-                    }
-                }
             }
-
-
             // GAME LOGIC ENDS HERE 
-
             // update the drawing (calls paintComponent)
             repaint();
-
-
 
             // SLOWS DOWN THE GAME BASED ON THE FRAMERATE ABOVE
             // USING SOME SIMPLE MATH
@@ -298,16 +281,15 @@ public class FinalProject extends JComponent implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
-        if (key == KeyEvent.VK_SPACE) {
-            jump = true;
-            jumpkeyP = 1;
-            System.out.println("hit key");
-        }
         if (key == KeyEvent.VK_ENTER) {
             start = true;
         }
+        if (key == KeyEvent.VK_DOWN) {
+            down = true;
+        }
         if (key == KeyEvent.VK_UP) {
             up = true;
+            System.out.println("hit key");
         }
         if (key == KeyEvent.VK_RIGHT) {
             right = true;
@@ -320,8 +302,8 @@ public class FinalProject extends JComponent implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         int key = e.getKeyCode();
-        if (key == KeyEvent.VK_SPACE) {
-            jump = false;
+        if (key == KeyEvent.VK_DOWN) {
+            down = false;
         }
         if (key == KeyEvent.VK_UP) {
             up = false;
